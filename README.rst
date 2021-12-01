@@ -17,11 +17,11 @@
 **General Info**
 
 ::
-    dswell will run a deamon process in backgroud which will delete the file/directory after
-    a specific time period.
-    I have created this to automatally delete the file and directory after specified time as
-    my disk usually filed with files and directory which i creates to test something and forget
-    to delete it. 
+      dswell will run a deamon process in backgroud which will delete the file/directory after
+      a specific time period.
+      I have created this to automatally delete the file and directory after specified time as
+      my disk usually filed with files and directory which i creates to test something and forget
+      to delete it. 
 
 
 **using**
@@ -31,13 +31,13 @@ Type ``dswell --help`` in terminal This will guide you through the
 process
 
 ::
-    Usage: dswell [OPTIONS]
+      Usage: dswell [OPTIONS]
 
-    Options:
-    --dir BOOLEAN  Set this if you want to test something as a packge
-    --name TEXT        Name of the file or package
-    --time INTEGER     time till file will be deleted(in seconds)
-    --help             Show this message and exit.
+      Options:
+            --dir BOOLEAN  Set this if you want to test something as a packge
+            --name TEXT        Name of the file or package
+            --time INTEGER     time till file will be deleted(in seconds)
+            --help             Show this message and exit.
 
 **Issues**
 ----------
