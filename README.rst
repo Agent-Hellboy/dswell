@@ -17,6 +17,7 @@
 **General Info**
 
 ::
+      
       dswell will run a deamon process in backgroud which will delete the file/directory after
       a specific time period.
       I have created this to automatally delete the file and directory after specified time as
@@ -31,6 +32,7 @@ Type ``dswell --help`` in terminal This will guide you through the
 process
 
 ::
+      
       Usage: dswell [OPTIONS]
 
       Options:
