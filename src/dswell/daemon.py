@@ -31,6 +31,8 @@ class DswellDaemon:
 
     def daemonize(self) -> None:
         """Convert the current process into a daemon following standard steps."""
+        ### DISCLAIMER: Followed https://www.youtube.com/watch?v=6t982BjaMko
+        ### I hope it works , Sorry if it doesn't
         # STEP 1: First fork() and leave parent
         try:
             pid = os.fork()
