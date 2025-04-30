@@ -36,7 +36,7 @@ dev = [
 ]
 
 [project.scripts]
-dswell = "dswell.cli:main"
+dswell = "dswell.cli:cli"
 
 [tool.black]
 line-length = 88
