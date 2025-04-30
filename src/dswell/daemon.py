@@ -148,6 +148,11 @@ class DswellDaemon:
             remove_pending(self.name)
             self.cleanup()
 
+    # TODO: Implement this
+    def is_running(self) -> bool:
+        """Check if the daemon is running."""
+        pass
+
 
 def start_daemon(file_path: str, deletion_time: int) -> None:
     """Start a daemon process for file deletion.
