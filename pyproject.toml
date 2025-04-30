@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "dswell"
 version = "1.0.0"
 description = "A CLI tool which will run a daemon process in background to delete the file/directory after a specific time period"
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
 authors = [
