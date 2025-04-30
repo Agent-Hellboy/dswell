@@ -17,12 +17,14 @@ def test_daemon_creation(daemon):
     assert daemon is not None
 
 
-# TODO: Fix this test
+# TODO: Add this test after adding is_running method
 # def test_daemon_run(daemon, mock_os):
 #     """Test daemon run method."""
 #     daemon.run()
+#     assert daemon.is_running()
 
-# TODO: Fix this test
+
+# TODO: Add this test after adding is_running method
 # def test_daemon_cleanup(daemon):
 #     """Test daemon cleanup method."""
 #     daemon.cleanup()
