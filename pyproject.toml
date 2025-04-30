@@ -45,10 +45,13 @@ target-version = ["py37", "py38", "py39"]
 [tool.isort]
 profile = "black"
 multi_line_output = 3
+line_length = 88
 
 [tool.ruff]
 line-length = 88
 target-version = "py37"
+
+[tool.ruff.lint]
 select = ["E", "F", "B", "I"]
 ignore = []
 

@@ -30,8 +30,10 @@ class DswellDaemon:
         )
 
     def daemonize(self) -> None:
-        """Convert the current process into a daemon."""
-        # First fork
+        """Convert the current process into a daemon following standard steps."""
+        ### DISCLAIMER: Followed https://www.youtube.com/watch?v=6t982BjaMko
+        ### I hope it works , Sorry if it doesn't
+        # STEP 1: First fork() and leave parent
         try:
             pid = os.fork()
             if pid > 0:
@@ -41,37 +43,57 @@ class DswellDaemon:
             logger.error(f"Fork #1 failed: {e}")
             sys.exit(1)
 
-        # Decouple from parent environment
-        os.chdir("/")
+        # STEP 2: Create new session
         os.setsid()
-        os.umask(0)
 
-        # Second fork
+        # STEP 3: Ignore signals
+        signal.signal(signal.SIGHUP, signal.SIG_IGN)
+        signal.signal(signal.SIGPIPE, signal.SIG_IGN)
+        # We still handle SIGTERM and SIGINT for clean shutdown
+        signal.signal(signal.SIGTERM, self._handle_signal)
+        signal.signal(signal.SIGINT, self._handle_signal)
+
+        # STEP 4: Second fork so that PID != SID
         try:
             pid = os.fork()
             if pid > 0:
-                # Exit parent process
+                # Exit from second parent
                 sys.exit(0)
         except OSError as e:
             logger.error(f"Fork #2 failed: {e}")
             sys.exit(1)
 
-        # Redirect standard file descriptors
-        sys.stdout.flush()
-        sys.stderr.flush()
-        with open("/dev/null", "r") as f:
-            os.dup2(f.fileno(), sys.stdin.fileno())
-        with open("/dev/null", "a+") as f:
-            os.dup2(f.fileno(), sys.stdout.fileno())
-        with open("/dev/null", "a+") as f:
-            os.dup2(f.fileno(), sys.stderr.fileno())
+        # STEP 5: Set umask for file permissions
+        os.umask(0o022)  # Set default permissions to 644 for files, 755 for dirs
+
+        # STEP 6: Change to root directory
+        os.chdir("/")
+
+        # STEP 7: Close all open file descriptors
+        # Get maximum number of file descriptors
+        import resource
+
+        maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+        if maxfd == resource.RLIM_INFINITY:
+            maxfd = 1024
+
+        # Close all file descriptors
+        for fd in range(maxfd):
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+
+        # Redirect standard file descriptors to /dev/null
+        os.open(os.devnull, os.O_RDWR)  # stdin
+        os.dup2(0, 1)  # stdout
+        os.dup2(0, 2)  # stderr
+
+        # STEP 8: Setup logging (already done via logger import)
+        logger.debug("Daemon process successfully created")
 
         # Write PID file
         self._write_pidfile()
-
-        # Set up signal handlers
-        signal.signal(signal.SIGTERM, self._handle_signal)
-        signal.signal(signal.SIGINT, self._handle_signal)
 
     def _write_pidfile(self) -> None:
         """Write the PID file."""
@@ -79,6 +101,8 @@ class DswellDaemon:
         try:
             with open(self.pidfile, "w+") as f:
                 f.write(f"{pid}\n")
+            # Set proper permissions for PID file
+            os.chmod(self.pidfile, 0o644)
         except OSError as e:
             logger.error(f"Failed to write PID file: {e}")
             sys.exit(1)
@@ -124,6 +148,11 @@ class DswellDaemon:
             remove_pending(self.name)
             self.cleanup()
 
+    # TODO: Implement this
+    def is_running(self) -> bool:
+        """Check if the daemon is running."""
+        pass
+
 
 def start_daemon(file_path: str, deletion_time: int) -> None:
     """Start a daemon process for file deletion.
@@ -133,7 +162,7 @@ def start_daemon(file_path: str, deletion_time: int) -> None:
         deletion_time: Time in seconds to wait before deletion
     """
     dswell_path = Path.home() / ".dswell"
-    dswell_path.mkdir(exist_ok=True)
+    dswell_path.mkdir(exist_ok=True, mode=0o755)  # Set proper directory permissions
 
     # Create a unique PID file name based on the file path
     file_hash = hashlib.md5(str(file_path).encode()).hexdigest()[:8]
