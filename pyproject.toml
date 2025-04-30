@@ -7,7 +7,7 @@ name = "dswell"
 version = "1.0.0"
 description = "A CLI tool which will run a daemon process in background to delete the file/directory after a specific time period"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 license = "MIT"
 authors = [
     { name = "Prince Roshan", email = "princekrroshan01@gmail.com" }
@@ -22,6 +22,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
