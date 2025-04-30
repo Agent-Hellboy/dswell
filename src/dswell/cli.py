@@ -41,7 +41,8 @@ def create(dir: bool, name: str, time: str) -> None:
         # Parse the time string into seconds
         seconds = parse_time(time)
         logger.debug(
-            f"Create command called with options: dir={dir}, name={name}, time={time} ({seconds} seconds)"
+            f"Create command called with options: dir={dir}, name={name}, "
+            f"time={time} ({seconds} seconds)"
         )
 
         # Create the file or directory
@@ -50,14 +51,16 @@ def create(dir: bool, name: str, time: str) -> None:
             name = str(Path(name).absolute())
             logger.debug(f"Created directory: {name}")
             click.echo(
-                f"Created directory: {name} and scheduled for deletion after {format_time(seconds)}"
+                f"Created directory: {name} and scheduled for deletion "
+                f"after {format_time(seconds)}"
             )
         else:
             touch_file(name)
             name = str(Path(name).absolute())
             logger.debug(f"Created file: {name}")
             click.echo(
-                f"Created file: {name} and scheduled for deletion after {format_time(seconds)}"
+                f"Created file: {name} and scheduled for deletion "
+                f"after {format_time(seconds)}"
             )
 
         # Schedule for deletion
@@ -65,10 +68,10 @@ def create(dir: bool, name: str, time: str) -> None:
 
     except ValueError as e:
         logger.error(f"Invalid time format: {str(e)}")
-        raise click.ClickException(str(e))
+        raise click.ClickException(str(e)) from e
     except Exception as e:
         logger.error(f"Error in create command: {str(e)}")
-        raise click.ClickException(str(e))
+        raise click.ClickException(str(e)) from e
 
 
 if __name__ == "__main__":
