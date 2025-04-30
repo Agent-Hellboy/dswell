@@ -10,7 +10,7 @@ git clone https://github.com/Agent-Hellboy/dswell.git
 cd dswell
 pip install -e .
 
-# Or install directly from PyPI (when published)
+# Or install directly from PyPI (current source is not updated)
 pip install dswell
 ```
 
