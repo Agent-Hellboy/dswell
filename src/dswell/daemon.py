@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Optional
 
 from .logger import logger
+from .pending import add_pending, remove_pending
 
 
 class DswellDaemon:
@@ -99,6 +100,9 @@ class DswellDaemon:
     def run(self) -> None:
         """Run the daemon process."""
         try:
+            # Add to pending deletions
+            add_pending(self.name, self.rtime)
+
             logger.debug(
                 f"Daemon started, waiting {self.rtime} seconds before deletion"
             )
@@ -116,6 +120,8 @@ class DswellDaemon:
         except Exception as e:
             logger.error(f"Failed to delete {self.name}: {str(e)}")
         finally:
+            # Remove from pending deletions
+            remove_pending(self.name)
             self.cleanup()
 
 
