@@ -2,6 +2,30 @@
 
 A daemon-based file deletion utility that allows you to schedule files or directories for deletion after a specified time period.
 
+Why did I create this?
+
+- I often end up writing temporary scripts and then forgetting to delete them, so they clutter my workspace.
+
+What does it do?
+
+- It automatically removes files after a specified age—you just pass the duration in hours, minutes, and seconds (for example, 1h30m3s), and it deletes any files older than that.
+
+
+```bash
+dswell
+Usage: dswell [OPTIONS] COMMAND [ARGS]...
+
+  dswell - Delayed file deletion utility
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  create  Create a file or directory and schedule it for deletion.
+  list    List all pending file/directory deletions.
+
+```
+
 ## Installation
 
 ```bash
