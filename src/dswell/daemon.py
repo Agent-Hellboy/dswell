@@ -1,5 +1,6 @@
 import hashlib
 import os
+import shutil
 import signal
 import sys
 import time
@@ -171,7 +172,7 @@ class DirectoryDswellDaemon(BaseDswellDaemon):
     def perform_deletion(self) -> None:
         """Perform directory deletion."""
         if os.path.isdir(self.name):
-            os.rmdir(self.name)
+            shutil.rmtree(self.name)
             logger.debug(f"Successfully deleted directory: {self.name}")
         else:
             logger.warning(f"Path not found or not a directory: {self.name}")
