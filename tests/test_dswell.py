@@ -1,6 +1,6 @@
 import pytest
 
-from dswell.daemon import DswellDaemon
+from dswell.daemon import DirectoryDswellDaemon, FileDswellDaemon
 from dswell.utils import format_time, parse_time
 
 
@@ -36,7 +36,7 @@ def test_daemon_file_deletion(tmp_path):
 
     # Create a daemon instance
     pidfile = tmp_path / "test.pid"
-    daemon = DswellDaemon(1, str(test_file), str(pidfile))  # 1 second delay
+    daemon = FileDswellDaemon(1, str(test_file), str(pidfile))  # 1 second delay
 
     # Run the daemon
     daemon.run()
@@ -48,14 +48,13 @@ def test_daemon_file_deletion(tmp_path):
 
 def test_daemon_directory_deletion(tmp_path):
     """Test daemon directory deletion functionality."""
-    # Create a test directory
     test_dir = tmp_path / "test_dir"
     test_dir.mkdir()
     assert test_dir.exists()
 
     # Create a daemon instance
     pidfile = tmp_path / "test.pid"
-    daemon = DswellDaemon(1, str(test_dir), str(pidfile))  # 1 second delay
+    daemon = DirectoryDswellDaemon(1, str(test_dir), str(pidfile))  # 1 second delay
 
     # Run the daemon
     daemon.run()

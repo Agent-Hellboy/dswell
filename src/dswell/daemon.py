@@ -1,8 +1,10 @@
 import hashlib
 import os
+import shutil
 import signal
 import sys
 import time
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
@@ -10,8 +12,12 @@ from .logger import logger
 from .pending import add_pending, remove_pending
 
 
-class DswellDaemon:
-    """A custom daemon implementation for background file deletion."""
+class BaseDswellDaemon(ABC):
+    """Abstract base class for daemon implementations.
+
+    This class provides a template method for daemon creation and cleanup.
+    ## TODO: Add other important process management APIs
+    """
 
     def __init__(self, rtime: int, name: str, pidfile: str):
         """Initialize the daemon.
@@ -121,8 +127,13 @@ class DswellDaemon:
             except OSError as e:
                 logger.error(f"Failed to remove PID file: {e}")
 
+    @abstractmethod
+    def perform_deletion(self) -> None:
+        """Perform the actual deletion operation."""
+        pass
+
     def run(self) -> None:
-        """Run the daemon process."""
+        """Template method that defines the skeleton of the daemon process."""
         try:
             # Add to pending deletions
             add_pending(self.name, self.rtime)
@@ -132,14 +143,8 @@ class DswellDaemon:
             )
             time.sleep(self.rtime)
 
-            if os.path.isfile(self.name):
-                os.remove(self.name)
-                logger.debug(f"Successfully deleted file: {self.name}")
-            elif os.path.isdir(self.name):
-                os.rmdir(self.name)
-                logger.debug(f"Successfully deleted directory: {self.name}")
-            else:
-                logger.warning(f"Path not found for deletion: {self.name}")
+            # Perform the deletion
+            self.perform_deletion()
 
         except Exception as e:
             logger.error(f"Failed to delete {self.name}: {str(e)}")
@@ -148,10 +153,29 @@ class DswellDaemon:
             remove_pending(self.name)
             self.cleanup()
 
-    # TODO: Implement this
-    def is_running(self) -> bool:
-        """Check if the daemon is running."""
-        pass
+
+class FileDswellDaemon(BaseDswellDaemon):
+    """Daemon implementation for file deletion."""
+
+    def perform_deletion(self) -> None:
+        """Perform file deletion."""
+        if os.path.isfile(self.name):
+            os.remove(self.name)
+            logger.debug(f"Successfully deleted file: {self.name}")
+        else:
+            logger.warning(f"Path not found or not a file: {self.name}")
+
+
+class DirectoryDswellDaemon(BaseDswellDaemon):
+    """Daemon implementation for directory deletion."""
+
+    def perform_deletion(self) -> None:
+        """Perform directory deletion."""
+        if os.path.isdir(self.name):
+            shutil.rmtree(self.name)
+            logger.debug(f"Successfully deleted directory: {self.name}")
+        else:
+            logger.warning(f"Path not found or not a directory: {self.name}")
 
 
 def start_daemon(file_path: str, deletion_time: int) -> None:
@@ -169,7 +193,11 @@ def start_daemon(file_path: str, deletion_time: int) -> None:
     pidfile = dswell_path / f"daemon_{file_hash}.pid"
     logger.debug(f"Starting daemon for {file_path} with PID file: {pidfile}")
 
-    # Create and start the daemon
-    daemon = DswellDaemon(deletion_time, file_path, pidfile=str(pidfile))
+    # Create appropriate daemon based on path type
+    if os.path.isdir(file_path):
+        daemon = DirectoryDswellDaemon(deletion_time, file_path, pidfile=str(pidfile))
+    else:
+        daemon = FileDswellDaemon(deletion_time, file_path, pidfile=str(pidfile))
+
     daemon.daemonize()
     daemon.run()

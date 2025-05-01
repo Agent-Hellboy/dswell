@@ -10,7 +10,7 @@ import pytest
 src_path = str(Path(__file__).parent.parent / "src")
 sys.path.insert(0, src_path)
 
-from dswell.daemon import DswellDaemon  # noqa: E402
+from dswell.daemon import FileDswellDaemon  # noqa: E402
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def daemon(tmp_path):
     rtime = 10
     name = "test.txt"
     pidfile = str(tmp_path / "test.pid")
-    return DswellDaemon(rtime, name, pidfile)
+    return FileDswellDaemon(rtime, name, pidfile)
 
 
 @pytest.fixture
