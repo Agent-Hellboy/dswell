@@ -8,7 +8,7 @@ Why did I create this?
 
 What does it do?
 
-- It automatically removes files after a specified age—you just pass the duration in hours, minutes, and seconds (for example, 1h30m3s), and it deletes any files older than that.
+- It automatically removes files after a specified age—you just pass the duration in hours, minutes, and seconds (for example, 1h30m3s), and it deletes the file after the specified time period.
 
 
 ```bash
