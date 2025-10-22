@@ -1,5 +1,5 @@
 import logging
-from logging.handlers import RotatingFileHandler
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from pathlib import Path
 
 
@@ -34,9 +34,14 @@ def setup_logger(name: str = "dswell") -> logging.Logger:
     console_formatter = logging.Formatter("%(message)s")  # Simple format for console
 
     # File handler (with rotation) - captures all levels
+    # Using TimedRotatingFileHandler for 7-day rotation
+    # Also keeps size limit as a safety measure
     log_file = dswell_dir / "dswell.log"
-    file_handler = RotatingFileHandler(
-        log_file, maxBytes=1024 * 1024, backupCount=5  # 1MB
+    file_handler = TimedRotatingFileHandler(
+        log_file,
+        when='D',        # Daily rotation
+        interval=7,      # Every 7 days
+        backupCount=4,   # Keep 4 weeks of logs (28 days total)
     )
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_formatter)

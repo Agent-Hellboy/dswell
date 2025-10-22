@@ -25,8 +25,9 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  create  Create a file or directory and schedule it for deletion.
-  list    List all pending file/directory deletions.
+  create   Create a file or directory and schedule it for deletion.
+  list     List all pending file/directory deletions.
+  watcher  Manage the pending deletion file watcher.
 
 ```
 
@@ -58,6 +59,48 @@ Time format supports:
 - Hours (h)
 - Minutes (m)
 - Seconds (s)
+
+### File Watcher
+
+The file watcher monitors pending deletions and automatically cleans up `pending.json` when files/directories are manually deleted before their scheduled deletion time.
+
+```bash
+# Start the file watcher daemon
+dswell watcher start
+
+# Check watcher status
+dswell watcher status
+
+# Stop the watcher daemon
+dswell watcher stop
+```
+
+**Features:**
+- Automatically monitors all files/directories scheduled for deletion
+- Removes entries from `pending.json` when files are manually deleted
+- Runs as a background daemon process
+- Uses efficient file system event watching (via watchdog library)
+
+### List Pending Deletions
+
+```bash
+# View all scheduled deletions
+dswell list
+```
+
+## Features
+
+### Automatic Log Cleanup
+
+- Logs are automatically rotated every 7 days
+- Keeps up to 4 weeks (28 days) of log history
+- Logs stored in `~/.dswell/dswell.log`
+
+### Intelligent Monitoring
+
+- File watcher automatically detects manual deletions
+- Cleans up stale entries in `pending.json`
+- No manual intervention required
 
 ## Development
 
