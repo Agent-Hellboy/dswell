@@ -74,6 +74,7 @@ class PendingWatcher:
         self.observer: Observer = None
         self.event_handler = PendingFileHandler()
         self.running = False
+        self.watched_paths: Set[str] = set()  # Track watched paths internally
 
         # Only setup signal handlers if not in test environment
         if not os.environ.get("PYTEST_CURRENT_TEST"):
@@ -130,6 +131,10 @@ class PendingWatcher:
             parent = path.parent
             if parent.exists():
                 watch_paths.add(str(parent.resolve()))
+            else:
+                logger.warning(
+                    f"Parent directory {parent} does not exist for pending file {path}"
+                )
 
         return watch_paths
 
@@ -152,17 +157,12 @@ class PendingWatcher:
                 # Schedule observers for all parent directories
                 for watch_path in watch_paths:
                     try:
-                        # Check if already watching this path
-                        is_watching = False
-                        for watch in self.observer.emitters:
-                            if hasattr(watch, 'watch') and watch.watch.path == watch_path:
-                                is_watching = True
-                                break
-
-                        if not is_watching:
+                        # Check if already watching this path using our internal set
+                        if watch_path not in self.watched_paths:
                             self.observer.schedule(
                                 self.event_handler, watch_path, recursive=False
                             )
+                            self.watched_paths.add(watch_path)
                             logger.debug(f"Started watching: {watch_path}")
                     except Exception as e:
                         logger.error(f"Failed to watch {watch_path}: {e}")

@@ -61,6 +61,19 @@ class TestPendingFileHandler:
         # Check that path was removed from monitored paths
         assert str(test_file) not in handler.monitored_paths
 
+    def test_on_deleted_nonexistent_path(self, temp_pending_file, tmp_path):
+        """Test that on_deleted does nothing when path is not in monitored_paths."""
+        handler = PendingFileHandler()
+        initial_paths = handler.monitored_paths.copy()
+        
+        # Simulate deletion event for a path not in monitored_paths
+        event = MagicMock()
+        event.src_path = str(tmp_path / "nonexistent.txt")
+        handler.on_deleted(event)
+        
+        # monitored_paths should remain unchanged
+        assert handler.monitored_paths == initial_paths
+
     def test_on_moved(self, temp_pending_file, tmp_path):
         """Test move event handling."""
         # Create a test file and add it to pending
@@ -119,6 +132,16 @@ class TestPendingWatcher:
         watcher = PendingWatcher(pidfile=temp_pidfile)
         watcher._write_pidfile()
         assert watcher.is_running()
+
+    def test_is_running_with_invalid_pidfile(self, temp_pidfile):
+        """Test is_running with invalid PID file contents."""
+        # Write invalid (non-integer) data to the PID file
+        with open(temp_pidfile, "w") as f:
+            f.write("not_a_pid")
+        watcher = PendingWatcher(pidfile=temp_pidfile)
+        assert not watcher.is_running()
+        # PID file should be removed after ValueError
+        assert not os.path.exists(temp_pidfile)
 
     def test_get_watch_paths(self, temp_pending_file, tmp_path):
         """Test getting watch paths from pending deletions."""
